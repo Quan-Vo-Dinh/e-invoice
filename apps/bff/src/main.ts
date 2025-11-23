@@ -9,33 +9,41 @@ import { AppModule } from './app/app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  const globalPrefix = AppModule.CONFIGURATION.GLOBAL_PREFIX;
-  app.setGlobalPrefix(globalPrefix);
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  try {
+    const app = await NestFactory.create(AppModule);
+    const globalPrefix = AppModule.CONFIGURATION.GLOBAL_PREFIX;
+    app.setGlobalPrefix(globalPrefix);
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
-  // Swagger Documentation
-  const config = new DocumentBuilder()
-    .setTitle('EInvoice-bff API')
-    .setDescription('The E-bff API description')
-    .setVersion('1.0.0')
-    .addBearerAuth({
-      description: 'Default JWT Authorization',
-      type: 'http',
-      in: 'header',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
-      name: 'Authorization',
-    })
-    .build();
+    app.enableCors({
+      origin: '*',
+    });
 
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup(`${globalPrefix}/docs`, app, documentFactory);
+    // Swagger Documentation
+    const config = new DocumentBuilder()
+      .setTitle('EInvoice-bff API')
+      .setDescription('The E-bff API description')
+      .setVersion('1.0.0')
+      .addBearerAuth({
+        description: 'Default JWT Authorization',
+        type: 'http',
+        in: 'header',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+      })
+      .build();
 
-  const port = AppModule.CONFIGURATION.APP_CONFIG.PORT;
-  await app.listen(port);
-  Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
-  Logger.log(`📚 Swagger docs available at: http://localhost:${port}/${globalPrefix}/docs`);
+    const documentFactory = () => SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup(`${globalPrefix}/docs`, app, documentFactory);
+
+    const port = AppModule.CONFIGURATION.APP_CONFIG.PORT;
+    await app.listen(port);
+    Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
+    Logger.log(`📚 Swagger docs available at: http://localhost:${port}/${globalPrefix}/docs`);
+  } catch (error) {
+    Logger.error(`❌ Error starting server: ${error.message}`);
+  }
 }
 
 bootstrap();

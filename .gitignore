@@ -44,3 +44,6 @@ Thumbs.db
 .github/instructions/nx.instructions.md
 
 .env
+
+# Ignore docker data
+docker/**/docker_data/

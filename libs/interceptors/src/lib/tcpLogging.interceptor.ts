@@ -10,6 +10,7 @@ export class TcpLoggingInterceptor implements NestInterceptor {
 
     const args = context.getArgs();
 
+    // lấy vị trí đầu tiên thì nó đại diện cho payload trong TCP microservice
     const param = args[0];
 
     const processId = param?.processId || 'unknown_process_id';

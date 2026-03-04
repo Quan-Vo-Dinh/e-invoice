@@ -24,7 +24,7 @@ export class ExceptionInterceptor implements NestInterceptor {
         return data;
       }),
       catchError((error) => {
-        this.logger.error(`ProcessId: '${processID}' >> An error occurred during request processing.`);
+        this.logger.error({ error });
         const durationMs = Date.now() - startTime;
 
         const message = error.response?.message || error.message || HTTP_MESSAGE.INTERNAL_SERVER_ERROR;

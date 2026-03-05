@@ -25,7 +25,7 @@ export class MongoConfiguration {
   @IsOptional()
   SOCKET_TIMEOUT_MS?: number;
   constructor(data?: Partial<MongoConfiguration>) {
-    this.URL = data?.URL || process.env['MONGO_URI'] || '';
+    this.URL = data?.URL || process.env['MONGODB_URI'] || '';
     this.DB_NAME = data?.DB_NAME || process.env['MONGO_DB_NAME'] || 'test';
     this.POOL_SIZE = data?.POOL_SIZE || Number(process.env['MONGO_POOL_SIZE']) || 10;
     this.CONNECT_TIMEOUT_MS = data?.CONNECT_TIMEOUT_MS || Number(process.env['MONGO_CONNECT_TIMEOUT_MS']) || 15000;

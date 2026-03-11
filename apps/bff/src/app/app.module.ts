@@ -7,12 +7,14 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ExceptionInterceptor } from '@common/interceptors/exception.interceptor';
 import { ProductModule } from './modules/product/product.module';
 import { UserModule } from './modules/user/user.module';
+import { AuthorizerModule } from './modules/authorizer/authorizer.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [() => CONFIGURATION] }),
     InvoiceModules,
     ProductModule,
     UserModule,
+    AuthorizerModule,
   ],
   controllers: [],
   providers: [{ provide: APP_INTERCEPTOR, useClass: ExceptionInterceptor }],

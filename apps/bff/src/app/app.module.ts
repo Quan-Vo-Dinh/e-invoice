@@ -10,6 +10,7 @@ import { UserModule } from './modules/user/user.module';
 import { AuthorizerModule } from './modules/authorizer/authorizer.module';
 import { UserGuard } from '@common/guards/user.guard';
 import { PermissionGuard } from '@common/guards/permission.guard';
+import { RedisProvider } from '@common/configuration/redis.config';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PermissionGuard } from '@common/guards/permission.guard';
     ProductModule,
     UserModule,
     AuthorizerModule,
+    RedisProvider,
   ],
   controllers: [],
   providers: [

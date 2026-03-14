@@ -11,6 +11,8 @@ import { AuthorizerModule } from './modules/authorizer/authorizer.module';
 import { UserGuard } from '@common/guards/user.guard';
 import { PermissionGuard } from '@common/guards/permission.guard';
 import { RedisProvider } from '@common/configuration/redis.config';
+import { ThrottlerProvider } from '@common/configuration/throttler.config';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -20,6 +22,7 @@ import { RedisProvider } from '@common/configuration/redis.config';
     UserModule,
     AuthorizerModule,
     RedisProvider,
+    ThrottlerProvider,
   ],
   controllers: [],
   providers: [
@@ -31,6 +34,10 @@ import { RedisProvider } from '@common/configuration/redis.config';
     {
       provide: APP_GUARD,
       useClass: PermissionGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })

@@ -1,3 +1,4 @@
+import { GrpcConfiguration } from '@common/configuration/grpc.config';
 import { BaseConfiguration } from '@common/configuration/base.config';
 import { TcpConfiguration } from '@common/configuration/tcp.config';
 import { AppConfiguration } from '@common/configuration/app.config';
@@ -16,6 +17,10 @@ class Configuration extends BaseConfiguration {
   @ValidateNested()
   @Type(() => RedisConfiguration)
   REDIS_CONFIG = new RedisConfiguration();
+
+  @ValidateNested()
+  @Type(() => GrpcConfiguration)
+  GRPC_SERV = new GrpcConfiguration();
 }
 
 export const CONFIGURATION = new Configuration();

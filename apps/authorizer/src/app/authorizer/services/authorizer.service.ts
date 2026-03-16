@@ -4,22 +4,22 @@ import { KeycloakHttpService } from '../../keycloak/services/keycloak-http.servi
 import jwt, { Jwt, JwtPayload } from 'jsonwebtoken';
 import jwksRsa, { JwksClient } from 'jwks-rsa';
 import { ConfigService } from '@nestjs/config';
-import { TCP_SERVICES } from '@common/configuration/tcp.config';
-import { TcpClient } from '@common/interfaces/tcp/common/tcp-client.interface';
-import { User } from '@common/schemas/user.schema';
-import { TCP_REQUEST_MESSAGE } from '@common/constants/enum/tcp-request-message';
 import { firstValueFrom, map } from 'rxjs';
 import { Role } from '@common/schemas/role.schema';
+import { ClientGrpc } from '@nestjs/microservices';
+import { GRPC_SERVICES } from '@common/configuration/grpc.config';
+import { UserAccessService } from '@common/interfaces/grpc/user-access';
 
 @Injectable()
 export class AuthorizerService {
   private readonly logger = new Logger(AuthorizerService.name);
   private jwksClient: JwksClient;
+  private userAccessService: UserAccessService;
 
   constructor(
     private readonly keycloakHttpService: KeycloakHttpService,
     private readonly configService: ConfigService,
-    @Inject(TCP_SERVICES.USER_ACCESS_SERVICE) private readonly userAccessClient: TcpClient,
+    @Inject(GRPC_SERVICES.USER_ACCESS_SERVICE) private readonly grpcUserAccessClient: ClientGrpc,
   ) {
     const host = this.configService.get('KEYCLOAK_CONFIG.HOST');
     const realm = this.configService.get('KEYCLOAK_CONFIG.REALM');
@@ -29,6 +29,10 @@ export class AuthorizerService {
       cache: true,
       rateLimit: true,
     });
+  }
+
+  onModuleInit() {
+    this.userAccessService = this.grpcUserAccessClient.getService<UserAccessService>('UserAccessService');
   }
 
   async login(params: LoginTcpRequest) {
@@ -77,21 +81,12 @@ export class AuthorizerService {
   }
 
   private async userValidation(userId: string, processId: string) {
-    const user = await this.getUserByUserId(userId, processId);
+    const user = await firstValueFrom(
+      this.userAccessService.getByUserId({ processId, userId }).pipe(map((data) => data.data)),
+    );
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
     return user;
-  }
-
-  private getUserByUserId(userId: string, processId: string) {
-    return firstValueFrom(
-      this.userAccessClient
-        .send<User, string>(TCP_REQUEST_MESSAGE.USER.GET_BY_USER_ID, {
-          data: userId,
-          processId,
-        })
-        .pipe(map((data) => data.data)),
-    );
   }
 }
